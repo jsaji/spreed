@@ -22,6 +22,31 @@
 	<div id="call-container" :class="callViewClass">
 		<EmptyCallView v-if="!remoteParticipantsCount && !screenSharingActive" />
 		<div id="videos">
+			<div class="video__promoted">
+				<template v-for="callParticipantModel in reversedCallParticipantModels">
+					<Video
+						v-if="sharedDatas[callParticipantModel.attributes.peerId].promoted"
+						:key="callParticipantModel.attributes.peerId"
+						:token="token"
+						:model="callParticipantModel"
+						:shared-data="sharedDatas[callParticipantModel.attributes.peerId]"
+						:use-constrained-layout="useConstrainedLayout"
+						@switchScreenToId="_switchScreenToId" />
+				</template>
+			</div>
+			<div class="videos-stripe">
+				<GridView
+					v-bind="$attrs"
+					:dev-mode="true"
+					:dummies="99"
+					:is-promoted-view="true"
+					:token="token"
+					:min-height="250"
+					boundaries-element-class="videos-stripe"
+					:has-pagination="true" />
+			</div>
+			<!--
+			</div>
 			<template v-for="callParticipantModel in reversedCallParticipantModels">
 				<Video
 					:key="callParticipantModel.attributes.peerId"
@@ -44,26 +69,28 @@
 				:local-call-participant-model="localCallParticipantModel"
 				:use-constrained-layout="useConstrainedLayout"
 				@switchScreenToId="_switchScreenToId" />
-		</div>
-		<div id="screens">
-			<Screen v-if="localMediaModel.attributes.localScreen"
-				:local-media-model="localMediaModel"
-				:shared-data="localSharedData" />
-			<Screen v-for="callParticipantModel in callParticipantModelsWithScreen"
-				:key="'screen-' + callParticipantModel.attributes.peerId"
-				:call-participant-model="callParticipantModel"
-				:shared-data="sharedDatas[callParticipantModel.attributes.peerId]" />
+				-->
+
+			<div id="screens">
+				<Screen v-if="localMediaModel.attributes.localScreen"
+					:local-media-model="localMediaModel"
+					:shared-data="localSharedData" />
+				<Screen v-for="callParticipantModel in callParticipantModelsWithScreen"
+					:key="'screen-' + callParticipantModel.attributes.peerId"
+					:call-participant-model="callParticipantModel"
+					:shared-data="sharedDatas[callParticipantModel.attributes.peerId]" />
+			</div>
 		</div>
 	</div>
 </template>
 
 <script>
 import EmptyCallView from '../shared/EmptyCallView'
-import LocalVideo from '../shared/LocalVideo'
 import Screen from '../shared/Screen'
 import Video from '../shared/Video'
 import call from '../../../mixins/call'
 import { callParticipantCollection } from '../../../utils/webrtc/index'
+import GridView from '../GridView/GridView'
 
 export default {
 
@@ -71,9 +98,9 @@ export default {
 
 	components: {
 		EmptyCallView,
-		LocalVideo,
 		Screen,
 		Video,
+		GridView,
 	},
 
 	mixins: [call],
@@ -200,6 +227,23 @@ export default {
 	justify-content: space-around;
 	-webkit-align-items: flex-end;
 	align-items: flex-end;
+	flex-direction: column;
+}
+
+.videos-stripe {
+	position: relative;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	display: block;
+	height: 300px;
+}
+
+.video__promoted {
+	position:relative;
+	height: 100%;
+	width: 100%;
+	display: block;
 }
 
 #videos.hidden {

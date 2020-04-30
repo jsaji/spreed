@@ -22,35 +22,41 @@
 	<div id="call-container" :class="callViewClass">
 		<EmptyCallView v-if="!remoteParticipantsCount && !screenSharingActive" />
 		<div id="videos">
-			<template v-for="callParticipantModel in reversedCallParticipantModels">
-				<Video
-					:key="callParticipantModel.attributes.peerId"
-					:model="callParticipantModel"
-					:shared-data="sharedDatas[callParticipantModel.attributes.peerId]"
-					:use-constrained-layout="useConstrainedLayout"
-					@switchScreenToId="_switchScreenToId" />
-				<Video
-					:key="'placeholder' + callParticipantModel.attributes.peerId"
-					:placeholder-for-promoted="true"
-					:model="callParticipantModel"
-					:shared-data="sharedDatas[callParticipantModel.attributes.peerId]"
-					:use-constrained-layout="useConstrainedLayout"
-					@switchScreenToId="_switchScreenToId" />
-			</template>
-			<LocalVideo ref="localVideo"
-				:local-media-model="localMediaModel"
-				:local-call-participant-model="localCallParticipantModel"
-				:use-constrained-layout="useConstrainedLayout"
-				@switchScreenToId="_switchScreenToId" />
-		</div>
-		<div id="screens">
-			<Screen v-if="localMediaModel.attributes.localScreen"
-				:local-media-model="localMediaModel"
-				:shared-data="localSharedData" />
-			<Screen v-for="callParticipantModel in callParticipantModelsWithScreen"
-				:key="'screen-' + callParticipantModel.attributes.peerId"
-				:call-participant-model="callParticipantModel"
-				:shared-data="sharedDatas[callParticipantModel.attributes.peerId]" />
+			<div class="videos-stripe">
+				<div class="incoming-videos">
+					<template v-for="callParticipantModel in reversedCallParticipantModels">
+						<Video
+							:key="callParticipantModel.attributes.peerId"
+							:model="callParticipantModel"
+							:shared-data="sharedDatas[callParticipantModel.attributes.peerId]"
+							:use-constrained-layout="useConstrainedLayout"
+							@switchScreenToId="_switchScreenToId" />
+						<Video
+							:key="'placeholder' + callParticipantModel.attributes.peerId + '1'"
+							:placeholder-for-promoted="true"
+							:model="callParticipantModel"
+							:shared-data="sharedDatas[callParticipantModel.attributes.peerId]"
+							:use-constrained-layout="useConstrainedLayout"
+							@switchScreenToId="_switchScreenToId" />
+					</template>
+				</div>
+				<div class="local-video">
+					<LocalVideo ref="localVideo"
+						:local-media-model="localMediaModel"
+						:local-call-participant-model="localCallParticipantModel"
+						:use-constrained-layout="useConstrainedLayout"
+						@switchScreenToId="_switchScreenToId" />
+				</div>
+			</div>
+			<div id="screens">
+				<Screen v-if="localMediaModel.attributes.localScreen"
+					:local-media-model="localMediaModel"
+					:shared-data="localSharedData" />
+				<Screen v-for="callParticipantModel in callParticipantModelsWithScreen"
+					:key="'screen-' + callParticipantModel.attributes.peerId"
+					:call-participant-model="callParticipantModel"
+					:shared-data="sharedDatas[callParticipantModel.attributes.peerId]" />
+			</div>
 		</div>
 	</div>
 </template>
@@ -342,6 +348,22 @@ export default {
 	align-items: flex-end;
 }
 
+.videos-stripe {
+	height: 300px;
+	display: flex;
+	width: 100%;
+}
+
+.incoming-videos {
+	overflow-y: scroll;
+	justify-content: flex-end;
+	flex-grow: 1;
+}
+
+.local-video {
+	display: flex;
+}
+
 #videos.hidden {
 	display: none;
 }
@@ -356,7 +378,6 @@ export default {
 .participants-1.screensharing .videoContainer,
 .participants-2.screensharing .videoContainer {
 	position: relative;
-	width: 100%;
 	padding: 0 2%;
 	-webkit-box-flex: auto;
 	-moz-box-flex: auto;
@@ -367,6 +388,7 @@ export default {
 	display: flex;
 	justify-content: center;
 	align-items: flex-end;
+	min-width: 200px !important;
 }
 
 .videoContainer.hidden,

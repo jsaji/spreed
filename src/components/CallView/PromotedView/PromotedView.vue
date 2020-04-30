@@ -22,24 +22,25 @@
 	<div id="call-container" :class="callViewClass">
 		<EmptyCallView v-if="!remoteParticipantsCount && !screenSharingActive" />
 		<div id="videos">
-			<div class="video__promoted">
+			<div ref="videoContainer" class="video__promoted">
 				<template v-for="callParticipantModel in reversedCallParticipantModels">
 					<Video
 						v-if="sharedDatas[callParticipantModel.attributes.peerId].promoted"
 						:key="callParticipantModel.attributes.peerId"
 						:token="token"
 						:model="callParticipantModel"
+						:video-container-aspect-ratio="asdas"
 						:shared-data="sharedDatas[callParticipantModel.attributes.peerId]"
 						:use-constrained-layout="useConstrainedLayout"
+						:is-grid="true"
+						:fit-video="true"
 						@switchScreenToId="_switchScreenToId" />
 				</template>
 			</div>
 			<div class="videos-stripe">
 				<GridView
 					v-bind="$attrs"
-					:dev-mode="true"
-					:dummies="99"
-					:is-promoted-view="true"
+					:is-stripe="true"
 					:token="token"
 					:min-height="250"
 					boundaries-element-class="videos-stripe"
@@ -89,7 +90,6 @@ import EmptyCallView from '../shared/EmptyCallView'
 import Screen from '../shared/Screen'
 import Video from '../shared/Video'
 import call from '../../../mixins/call'
-import { callParticipantCollection } from '../../../utils/webrtc/index'
 import GridView from '../GridView/GridView'
 
 export default {
@@ -114,15 +114,7 @@ export default {
 
 	data() {
 		return {
-			speakers: [],
-			speakingUnwatchers: {},
-			screenUnwatchers: {},
-			// callParticipantModelsWithScreen: [],
-			localSharedData: {
-				screenVisible: true,
-			},
-			sharedDatas: {},
-			callParticipantCollection: callParticipantCollection,
+			videoContainerAspectRatio: 0,
 		}
 	},
 
@@ -139,70 +131,19 @@ export default {
 			return callViewClass
 		},
 	},
-
 	created() {
 		// Ensure that data is properly initialized before mounting the
 		// subviews.
 		this.updateDataFromCallParticipantModels(this.callParticipantModels)
 	},
-
 	methods: {
-
-		_setScreenAvailable(id, screen) {
-			if (screen) {
-				this.screens.unshift(id)
-
-				return
-			}
-
-			const index = this.screens.indexOf(id)
-			if (index !== -1) {
-				this.screens.splice(index, 1)
-			}
+		// Get the aspect ratio of the incoming stream
+		getVideoContainerAspectRatio() {
+			const videoContainerWidth = this.$refs.videoContainer.clientWidth
+			const VideoContainerHeight = this.$refs.videoContainer.clientHeight
+			this.videoContainerAspectRatio = videoContainerWidth / VideoContainerHeight
 		},
-
-		_setPromotedParticipant() {
-			Object.values(this.sharedDatas).forEach(sharedData => {
-				sharedData.promoted = false
-			})
-
-			if (!this.screenSharingActive && this.speakers.length) {
-				this.sharedDatas[this.speakers[0].id].promoted = true
-			}
-		},
-
-		_switchScreenToId(id) {
-			const index = this.screens.indexOf(id)
-			if (index === -1) {
-				return
-			}
-
-			this.screens.splice(index, 1)
-			this.screens.unshift(id)
-		},
-
-		_setScreenVisible() {
-			this.localSharedData.screenVisible = false
-
-			Object.values(this.sharedDatas).forEach(sharedData => {
-				sharedData.screenVisible = false
-			})
-
-			if (!this.screens.length) {
-				return
-			}
-
-			if (this.screens[0] === this.localCallParticipantModel.attributes.peerId) {
-				this.localSharedData.screenVisible = true
-
-				return
-			}
-
-			this.sharedDatas[this.screens[0]].screenVisible = true
-		},
-
 	},
-
 }
 </script>
 
@@ -294,7 +235,6 @@ export default {
 
 ::v-deep video {
 	z-index: 0;
-	max-height: 100%;
 	/* default filter for slightly better look */
 	/* Disabled for now as it causes a huuuuge performance drop.
 	 CPU usage is more than halved without this.
@@ -324,16 +264,6 @@ export default {
 	}
 }
 
-#videos .videoContainer:not(.promoted) ::v-deep video {
-	max-height: 200px;
-	max-width: 100%;
-	background-color: transparent;
-	border-radius: var(--border-radius) var(--border-radius) 0 0;
-	box-shadow: 0 0 15px var(--color-box-shadow);
-	bottom: 44px;
-	position: relative;
-}
-
 .constrained-layout #videos .videoContainer:not(.promoted) ::v-deep video {
 	/* Make the unpromoted videos smaller to not overlap too much the promoted
 	 * video */
@@ -347,13 +277,6 @@ export default {
 .participants-1 #videos .videoContainer ::v-deep video,
 .participants-2 #videos .videoContainer ::v-deep video {
 	padding: 0;
-}
-
-.videoContainer ::v-deep .avatar-container {
-	position: absolute;
-	bottom: 44px;
-	left: 0;
-	width: 100%;
 }
 
 .videoContainer ::v-deep .avatar-container .avatardiv {
@@ -387,15 +310,6 @@ export default {
 	left: 0;
 	top: 0;
 	z-index: 1;
-}
-.videoContainer.promoted ::v-deep video,
-.participants-2 .videoContainer:not(.videoView) ::v-deep video {
-	position: absolute;
-	width: initial;
-	height: 100%;
-	left: 50%;
-	top: 50%;
-	transform: translateY(-50%) translateX(-50%);
 }
 
 /* own video */

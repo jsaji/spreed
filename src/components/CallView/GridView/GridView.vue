@@ -27,7 +27,7 @@
 			@mousemove="handleMovement"
 			@keydown="handleMovement">
 			<template v-if="!devMode">
-				<EmptyCallView v-if="videos.length === 0" class="video" :is-grid="true" />
+				<EmptyCallView v-if="videos.length === 0 &&!isStripe" class="video" :is-grid="true" />
 				<template v-for="callParticipantModel in displayedVideos">
 					<Video
 						:key="callParticipantModel.attributes.peerId"
@@ -36,6 +36,7 @@
 						:token="token"
 						:model="callParticipantModel"
 						:is-grid="true"
+						:fit-video="true"
 						:video-container-aspect-ratio="videoContainerAspectRatio"
 						:shared-data="{videoEnabled: true}" />
 				</template>
@@ -47,6 +48,7 @@
 					:video-container-aspect-ratio="videoContainerAspectRatio"
 					:local-call-participant-model="localCallParticipantModel"
 					:use-constrained-layout="false"
+					:fit-video="isStripe"
 					@switchScreenToId="1" />
 			</template>
 			<!-- Grid developer mode -->
@@ -85,8 +87,9 @@
 			@click="handleClickPrevious">
 			Previous
 		</button>
+		<!-- page indicator (disabled) -->
 		<div
-			v-if="numberOfPages !== 0 && hasPagination"
+			v-if="numberOfPages !== 0 && hasPagination && false"
 			class="pages-indicator">
 			<div v-for="(page, index) in numberOfPages"
 				:key="index"
@@ -170,6 +173,10 @@ export default {
 		boundariesElementClass: {
 			type: String,
 			required: true,
+		},
+		isStripe: {
+			type: Boolean,
+			default: false,
 		},
 	},
 

@@ -23,7 +23,7 @@
 		:id="(placeholderForPromoted ? 'placeholder-' : '') + 'container_' + model.attributes.peerId + '_video_incoming'"
 		class="videoContainer"
 		:class="containerClass">
-		<video v-if="!placeholderForPromoted"
+		<video v-if="!placeholderForPromoted && !isPromotedInGrid"
 			v-show="model.attributes.videoAvailable && sharedData.videoEnabled"
 			ref="video"
 			:class="{'picture-grid': isGrid }"
@@ -131,6 +131,10 @@ export default {
 		showVideoOverlay: {
 			type: Boolean,
 			default: true,
+		},
+		isPromotedInGrid: {
+			type: Boolean,
+			default: false,
 		},
 	},
 	data() {

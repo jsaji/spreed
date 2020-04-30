@@ -25,6 +25,7 @@
 		<video v-show="localMediaModel.attributes.videoEnabled"
 			id="localVideo"
 			ref="video"
+			:style="videoStyle"
 			:class="{ 'picture-grid': isGrid }" />
 		<div v-if="!localMediaModel.attributes.videoEnabled" class="avatar-container">
 			<VideoBackground v-if="isGrid" :display-name="displayName" :user="userId" />
@@ -208,14 +209,6 @@ export default {
 }
 
 .picture-grid {
-	/* Make video to at least 100% wide and tall */
-	min-width: 100%;
-	min-height: 100%;
-
-	/* Setting width & height to auto prevents the browser from stretching or squishing the video */
-	width: auto;
-	height: auto;
-
 	/* Center the video and flip horizontally */
 	position: absolute;
 	top: 50%;

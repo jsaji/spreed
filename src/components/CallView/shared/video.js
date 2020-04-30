@@ -42,6 +42,10 @@ const video = {
 		videoContainerAspectRatio: {
 			type: Number,
 		},
+		fitVideo: {
+			type: Boolean,
+			default: false,
+		},
 	},
 
 	watch: {
@@ -62,10 +66,19 @@ const video = {
 			// Get the incoming video aspect ratio
 			this.getIncomingStreamAspectRatio()
 			// Compare it with the parent's aspect ratio
-			if (this.videoContainerAspectRatio >= this.incomingStreamAspectRatio) {
-				this.videoStyle = { width: '100%', height: 'auto' }
+			if (this.fitVideo) {
+				if (this.videoContainerAspectRatio >= this.incomingStreamAspectRatio) {
+
+					this.videoStyle = { width: 'auto', height: '100%' }
+				} else {
+					this.videoStyle = { width: '100%', height: 'auto' }
+				}
 			} else {
-				this.videoStyle = { width: 'auto', height: '100%' }
+				if (this.videoContainerAspectRatio >= this.incomingStreamAspectRatio) {
+					this.videoStyle = { width: '100%', height: 'auto' }
+				} else {
+					this.videoStyle = { width: 'auto', height: '100%' }
+				}
 			}
 		},
 		// Get the aspect ratio of the incoming stream
